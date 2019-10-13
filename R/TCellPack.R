@@ -150,15 +150,15 @@ TCellPack <- function(gliph,
   }
 
   if(label == "cell"){
-    plot + geom_node_text(aes(label=name, filter = depth == 2), color = label.color, size = label.size)
+    plot <- plot + geom_node_text(aes(label=name, filter = depth == 2), color = label.color, size = label.size)
   }
 
   if(label == "clonotype"){
-    plot + geom_node_text(aes(label=name, filter = depth == 1), color = label.color, size = label.size)
+    plot <- plot + geom_node_text(aes(label=name, filter = depth == 1), color = label.color, size = label.size)
   }
 
-  if(label == "specifity"){
-    plot + geom_node_text(aes(label=name, filter = depth == 0), color = label.color, size = label.size)
+  if(label == "specificity"){
+    plot <- plot + geom_node_text(aes(label=name, filter = depth == 0), color = label.color, size = label.size)
   }
 
   return(plot)
