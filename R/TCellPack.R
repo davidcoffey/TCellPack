@@ -53,7 +53,7 @@ TCellPack <- function(gliph,
     if(any(clonotype.data$frequency %in% 0 & is.na(clonotype.data$frequency))) {warning("clonotype.data cannot contain NA or 0 values", call. = FALSE)}
   }
 
-  if(class(gliph) == "character"){
+  if(class(gliph)[1] == "character"){
     gliph <- data.frame(fread(gliph))
   }
   gliph <- data.frame(gliph)
