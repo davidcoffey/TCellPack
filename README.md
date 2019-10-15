@@ -1,5 +1,5 @@
-# TCellPack v0.1
-TCellPack is a R package used to visualize characteristics of T cell repertoires.  It is possible to visualize T cell clonotype diversity and abundance in relation to its antigen specificity and phenotype in a single plot.
+# TCellPack v0.1.1
+TCellPack is an R package used to visualize characteristics of T cell repertoires.  It is possible to visualize T cell clonotype diversity and abundance in relation to its antigen specificity and phenotype in a single plot.
 
 ### About
 T cell packs are circle packing plots representing T cell repertoires.  They are intended to visualize output data from [GLIPH](https://github.com/immunoengineer/gliph).  A GLIPH (Grouping of Lymphocyte Interactions by Paratope Hotspots) is a clusters of T cell clonotypes that are predicted to bind the same MHC-restricted peptide antigen on the basis of shared sequence motifs within the T cell receptor CDR3 amino acid sequence.

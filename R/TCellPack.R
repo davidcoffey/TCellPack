@@ -19,14 +19,24 @@
 #' @return Returns a T cell circle packing plot.
 #'
 #' @examples
+#' # T cell clone size proportional to frequency
+#' TCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
+#'
+# # T cell colored by continuous variable
+#' TCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
+#'
+# # T cell colored by discrete variable
+#' TCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
 #'
 #' @export
 #' @import ggplot2
 #' @import ggraph
 #' @import igraph
+#' @import RColorBrewer
 #' @importFrom plyr ldply
 #' @importFrom stringr str_split
 #' @importFrom data.table fread
+#' @importFrom grDevices colorRampPalette
 
 TCellPack <- function(gliph,
                       clonotype.data = NULL,
@@ -53,10 +63,12 @@ TCellPack <- function(gliph,
     if(any(clonotype.data$frequency %in% 0 & is.na(clonotype.data$frequency))) {warning("clonotype.data cannot contain NA or 0 values", call. = FALSE)}
   }
 
-  if(class(gliph)[1] == "character"){
-    gliph <- data.frame(fread(gliph))
+  if(any(class(gliph) %in% "character")){
+    gliph <- data.frame(data.table::fread(gliph))
+  } else {
+    gliph <- data.frame(gliph)
   }
-  gliph <- data.frame(gliph)
+
 
   # Reformat GLIPH data
   specifities <- stringr::str_split(string = gliph[gliph[,1] > cluster.size, 3], pattern = " ")
@@ -73,11 +85,11 @@ TCellPack <- function(gliph,
 
     # Plot
     plot <- ggraph::ggraph(graph, layout = "circlepack") +
-      geom_node_circle(aes(fill = factor(depth)), size = 0.25, n = 50, color = line.color) +
-      scale_fill_manual(values = c("0" = specificity.color, "1" = clonotype.color),
+      ggraph::geom_node_circle(ggplot2::aes(fill = factor(depth)), size = 0.25, n = 50, color = line.color) +
+      ggplot2::scale_fill_manual(values = c("0" = specificity.color, "1" = clonotype.color),
                         name = "", labels = c("Specificity", "Clonotype")) +
-      theme_void() +
-      coord_fixed()
+      ggplot2::theme_void() +
+      ggplot2::coord_fixed()
   }
 
   # Clonotype data only
@@ -93,42 +105,42 @@ TCellPack <- function(gliph,
     graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
 
     plot <- ggraph::ggraph(graph, layout = "circlepack", weight = frequency) +
-      geom_node_circle(aes(fill = factor(depth)), size = 0.25, n = 50, color = line.color) +
-      scale_fill_manual(values = c("0" = specificity.color, "1" = clonotype.color),
+      ggraph::geom_node_circle(ggplot2::aes(fill = factor(depth)), size = 0.25, n = 50, color = line.color) +
+      ggplot2::scale_fill_manual(values = c("0" = specificity.color, "1" = clonotype.color),
                         name = "", labels = c("Specificity", "Clonotype")) +
-      theme_void() +
-      coord_fixed()
+      ggplot2::theme_void() +
+      ggplot2::coord_fixed()
   }
 
   # Continuous cell data only
   if(!is.null(cell.data) & class(cell.data$data) %in% c("integer", "numeric")){
     specifities <- merge(specifities, cell.data, all = FALSE)
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
-    edges <- rbind(edges, data.frame(from = cell.data$clonotype, to = cell.data$cell))
+    edges <- rbind(edges, data.frame(from = specifities$clonotype, to = specifities$cell))
     specifities.aggregate <- aggregate(data = specifities, data~specificity, mean)
     names(specifities.aggregate) <- c("name", "data")
     clonotype.aggregate <- aggregate(data = specifities, data~clonotype, mean)
     names(clonotype.aggregate) <- c("name", "data")
-    vertices <- do.call("rbind", list(data.frame(name = cell.data$cell, data = cell.data$data),
+    vertices <- do.call("rbind", list(data.frame(name = specifities$cell, data = specifities$data),
                                      specifities.aggregate, clonotype.aggregate))
     # Graph object
     graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
 
     # Plot
     plot <- ggraph::ggraph(graph, layout = "circlepack") +
-      geom_node_circle(aes(fill = data), size = 0.25, n = 50, color = line.color) +
-      scale_fill_distiller(palette = color.gradient) +
-      theme_void() +
-      coord_fixed() +
-      labs(fill = "")
+      ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
+      ggplot2::scale_fill_distiller(palette = color.gradient) +
+      ggplot2::theme_void() +
+      ggplot2::coord_fixed() +
+      ggplot2::labs(fill = "")
   }
 
   # Discrete cell data only
   if(!is.null(cell.data) & class(cell.data$data) %in% c("factor", "character")){
-    specifities <- specifities[specifities$clonotype %in% cell.data$clonotype,]
+    specifities <- merge(specifities, cell.data, all = FALSE)
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
-    edges <- rbind(edges, data.frame(from = cell.data$clonotype, to = cell.data$cell))
-    vertices <- data.frame(name = cell.data$cell, data = cell.data$data)
+    edges <- rbind(edges, data.frame(from =  specifities$clonotype, to = specifities$cell))
+    vertices <- data.frame(name = specifities$cell, data = specifities$data)
     vertices <- rbind(vertices, unique(data.frame(name = specifities$specificity, data = rep("1", nrow(specifities)))))
     vertices <- rbind(vertices, unique(data.frame(name = specifities$clonotype, data = rep("2", nrow(specifities)))))
 
@@ -138,11 +150,13 @@ TCellPack <- function(gliph,
     # Plot
     getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, color.gradient))
     plot <- ggraph::ggraph(graph, layout = "circlepack") +
-      geom_node_circle(aes(fill = data), size = 0.25, n = 50, color = line.color) +
-      scale_fill_manual(values = c(specificity.color, clonotype.color, getPalette(length(unique(cell.data$data)))), breaks = unique(cell.data$data)) +
-      theme_void() +
-      coord_fixed() +
-      labs(fill = "")
+      ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
+      ggraph::geom_node_circle(ggplot2::aes(fill = data, filter = leaf), size = 0.25, n = 50, color = line.color) +
+      ggplot2::scale_fill_manual(values = c(specificity.color, clonotype.color, getPalette(length(unique(specifities$data)))), breaks = sort(unique(specifities$data))) +
+      ggplot2::theme_void() +
+      ggplot2::coord_fixed() +
+      ggplot2::labs(fill = "")
+    plot
   }
 
   if(legend == FALSE){
@@ -163,6 +177,3 @@ TCellPack <- function(gliph,
 
   return(plot)
 }
-
-
-

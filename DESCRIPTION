@@ -1,12 +1,13 @@
 Package: TCellPack
 Type: Package
-Title: Creates a T cell pack from a gliph file with the option to visualize clonotype and cellular metadata.
-Version: 0.1.0
+Title: Creates a T cell pack from a gliph file with the option to visualize clonotype and cellular metadata
+Version: 0.1.1
 Author: David Coffey, M.D.
 Maintainer: David Coffey <dcoffey@fredhutch.org>
 Description: TCellPack is a package used to visualize characteristics of T cell repertoires.  It is possible to visualize T cell clonotype diversity and abundance in relation to its antigen specificity and phenotype in a single plot.
+Depends: R (>= 3.5)
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Imports: data.table, plyr, ggplot2, ggraph, igraph, stringr
+Imports: data.table, plyr, ggplot2, ggraph, igraph, stringr, RColorBrewer

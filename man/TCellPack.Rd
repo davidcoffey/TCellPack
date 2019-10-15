@@ -44,5 +44,11 @@ Returns a T cell circle packing plot.
 Creates a T cell pack from a gliph file with the option to visualize clonotype and cellular metadata.
 }
 \examples{
+# T cell clone size proportional to frequency
+TCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
+
+TCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
+
+TCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
 
 }
