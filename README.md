@@ -21,13 +21,13 @@ TCellPack pack comes with 4 example data frames (`gliph.example`, `clonotype.dat
 library(TCellPack)
 
 # T cell clone size proportional to frequency
-TCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
+PlotTCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
 
 # T cell colored by continuous variable
-TCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
+PlotTCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
 
 # T cell colored by discrete variable
-TCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
+PlotTCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
 ```
 
 ![](man/figures/example-plot.png)
