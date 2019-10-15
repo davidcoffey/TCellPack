@@ -22,10 +22,10 @@
 #' # T cell clone size proportional to frequency
 #' TCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
 #'
-# # T cell colored by continuous variable
+#' # T cell colored by continuous variable
 #' TCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
 #'
-# # T cell colored by discrete variable
+#' # T cell colored by discrete variable
 #' TCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
 #'
 #' @export
@@ -104,6 +104,7 @@ TCellPack <- function(gliph,
     # Graph object
     graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
 
+    # Plot
     plot <- ggraph::ggraph(graph, layout = "circlepack", weight = frequency) +
       ggraph::geom_node_circle(ggplot2::aes(fill = factor(depth)), size = 0.25, n = 50, color = line.color) +
       ggplot2::scale_fill_manual(values = c("0" = specificity.color, "1" = clonotype.color),

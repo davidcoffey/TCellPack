@@ -47,8 +47,10 @@ Creates a T cell pack from a gliph file with the option to visualize clonotype a
 # T cell clone size proportional to frequency
 TCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
 
+# T cell colored by continuous variable
 TCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
 
+# T cell colored by discrete variable
 TCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
 
 }
