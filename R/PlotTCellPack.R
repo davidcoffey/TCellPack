@@ -20,13 +20,13 @@
 #'
 #' @examples
 #' # T cell clone size proportional to frequency
-#' TCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
+#' PlotTCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
 #'
 #' # T cell colored by continuous variable
-#' TCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
+#' PlotTCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
 #'
 #' # T cell colored by discrete variable
-#' TCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
+#' PlotTCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
 #'
 #' @export
 #' @import ggplot2
@@ -38,19 +38,19 @@
 #' @importFrom data.table fread
 #' @importFrom grDevices colorRampPalette
 
-TCellPack <- function(gliph,
-                      clonotype.data = NULL,
-                      cell.data = NULL,
-                      specificity.color = "#08306b",
-                      clonotype.color = "#4292c6",
-                      cell.color = "#9ecae1",
-                      color.gradient = "RdYlBu",
-                      line.color = "black",
-                      label.color = "black",
-                      label.size = 1,
-                      label = "none",
-                      legend = FALSE,
-                      cluster.size = 1){
+PlotTCellPack <- function(gliph,
+                          clonotype.data = NULL,
+                          cell.data = NULL,
+                          specificity.color = "#08306b",
+                          clonotype.color = "#4292c6",
+                          cell.color = "#9ecae1",
+                          color.gradient = "RdYlBu",
+                          line.color = "black",
+                          label.color = "black",
+                          label.size = 1,
+                          label = "none",
+                          legend = FALSE,
+                          cluster.size = 1){
 
   # Input validation
   if(!is.null(cell.data)){
@@ -87,7 +87,7 @@ TCellPack <- function(gliph,
     plot <- ggraph::ggraph(graph, layout = "circlepack") +
       ggraph::geom_node_circle(ggplot2::aes(fill = factor(depth)), size = 0.25, n = 50, color = line.color) +
       ggplot2::scale_fill_manual(values = c("0" = specificity.color, "1" = clonotype.color),
-                        name = "", labels = c("Specificity", "Clonotype")) +
+                                 name = "", labels = c("Specificity", "Clonotype")) +
       ggplot2::theme_void() +
       ggplot2::coord_fixed()
   }
@@ -108,7 +108,7 @@ TCellPack <- function(gliph,
     plot <- ggraph::ggraph(graph, layout = "circlepack", weight = frequency) +
       ggraph::geom_node_circle(ggplot2::aes(fill = factor(depth)), size = 0.25, n = 50, color = line.color) +
       ggplot2::scale_fill_manual(values = c("0" = specificity.color, "1" = clonotype.color),
-                        name = "", labels = c("Specificity", "Clonotype")) +
+                                 name = "", labels = c("Specificity", "Clonotype")) +
       ggplot2::theme_void() +
       ggplot2::coord_fixed()
   }
@@ -123,7 +123,7 @@ TCellPack <- function(gliph,
     clonotype.aggregate <- aggregate(data = specifities, data~clonotype, mean)
     names(clonotype.aggregate) <- c("name", "data")
     vertices <- do.call("rbind", list(data.frame(name = specifities$cell, data = specifities$data),
-                                     specifities.aggregate, clonotype.aggregate))
+                                      specifities.aggregate, clonotype.aggregate))
     # Graph object
     graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
 
@@ -157,7 +157,6 @@ TCellPack <- function(gliph,
       ggplot2::theme_void() +
       ggplot2::coord_fixed() +
       ggplot2::labs(fill = "")
-    plot
   }
 
   if(legend == FALSE){
