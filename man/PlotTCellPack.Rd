@@ -4,7 +4,7 @@
 \alias{PlotTCellPack}
 \title{Create T cell pack}
 \usage{
-PlotTCellPack(gliph, clonotype.data = NULL, cell.data = NULL,
+PlotTCellPack(gliph = NULL, clonotype.data = NULL, cell.data = NULL,
   specificity.color = "#08306b", clonotype.color = "#4292c6",
   cell.color = "#9ecae1", color.gradient = "RdYlBu",
   line.color = "black", label.color = "black", label.size = 1,
@@ -44,13 +44,19 @@ Returns a T cell circle packing plot.
 Creates a T cell pack from a gliph file with the option to visualize clonotype and cellular metadata.
 }
 \examples{
-# T cell clone size proportional to frequency
-TCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
+# T cell clone size proportional to frequency with GLIPH specificity groups
+PlotTCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
 
-# T cell colored by continuous variable
-TCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
+# T cell colored by continuous variable with GLIPH specificity groups
+PlotTCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
 
-# T cell colored by discrete variable
-TCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
+# T cell colored by discrete variable with GLIPH specificity groups
+PlotTCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
+
+# T cell colored by discrete variable without GLIPH specificity groups
+PlotTCellPack(cell.data = cell.data.discrete.example, legend = TRUE)
+
+# T cell colored by continuous variable without GLIPH specificity groups
+PlotTCellPack(cell.data = cell.data.continuous.example, legend = TRUE)
 
 }
