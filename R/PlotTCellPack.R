@@ -19,14 +19,20 @@
 #' @return Returns a T cell circle packing plot.
 #'
 #' @examples
-#' # T cell clone size proportional to frequency
+#' # T cell clone size proportional to frequency with GLIPH specificity groups
 #' PlotTCellPack(gliph = gliph.example, clonotype.data = clonotype.data.example, legend = TRUE)
 #'
-#' # T cell colored by continuous variable
+#' # T cell colored by continuous variable with GLIPH specificity groups
 #' PlotTCellPack(gliph = gliph.example, cell.data = cell.data.continuous.example, legend = TRUE)
 #'
-#' # T cell colored by discrete variable
+#' # T cell colored by discrete variable with GLIPH specificity groups
 #' PlotTCellPack(gliph = gliph.example, cell.data = cell.data.discrete.example, legend = TRUE)
+#'
+#' # T cell colored by discrete variable without GLIPH specificity groups
+#' PlotTCellPack(cell.data = cell.data.discrete.example, legend = TRUE)
+#'
+#' # T cell colored by continuous variable without GLIPH specificity groups
+#' PlotTCellPack(cell.data = cell.data.continuous.example, legend = TRUE)
 #'
 #' @export
 #' @import ggplot2
@@ -38,7 +44,7 @@
 #' @importFrom data.table fread
 #' @importFrom grDevices colorRampPalette
 
-PlotTCellPack <- function(gliph,
+PlotTCellPack <- function(gliph = NULL,
                           clonotype.data = NULL,
                           cell.data = NULL,
                           specificity.color = "#08306b",
@@ -54,30 +60,33 @@ PlotTCellPack <- function(gliph,
 
   # Input validation
   if(!is.null(cell.data)){
-    if(!(all(names(cell.data) %in% c("clonotype", "cell", "data")))) {warning("cell.data must have the columns 'clonotype', 'cell', and 'data", call. = FALSE)}
+    if(!(all(names(cell.data) %in% c("clonotype", "cell", "data")))) {stop("cell.data must have the columns 'clonotype', 'cell', and 'data'", call. = TRUE)}
     if(any(is.na(cell.data$data))) {warning("cell.data cannot contain NA", call. = FALSE)}
   }
 
   if(!is.null(clonotype.data)){
-    if(!(all(names(clonotype.data) %in% c("clonotype", "frequency")))) {warning("clonotype.data must have the columns 'clonotype' and 'frequency'", call. = FALSE)}
-    if(any(clonotype.data$frequency %in% 0 & is.na(clonotype.data$frequency))) {warning("clonotype.data cannot contain NA or 0 values", call. = FALSE)}
+    if(!(all(names(clonotype.data) %in% c("clonotype", "frequency")))) {warning("clonotype.data must have the columns 'clonotype' and 'frequency'", call. = TRUE)}
+    if(any(clonotype.data$frequency %in% 0 & is.na(clonotype.data$frequency))) {warning("clonotype.data cannot contain NA or 0 values", call. = TRUE)}
   }
 
-  if(any(class(gliph) %in% "character")){
+  if(!is.null(gliph) & any(class(gliph) %in% "character")){
     gliph <- data.frame(data.table::fread(gliph))
-  } else {
+  }
+
+  if(!is.null(gliph) & any(class(gliph) %in% "data.table")){
     gliph <- data.frame(gliph)
   }
 
-
   # Reformat GLIPH data
-  specifities <- stringr::str_split(string = gliph[gliph[,1] > cluster.size, 3], pattern = " ")
-  names(specifities) <- 1:length(specifities)
-  specifities <- plyr::ldply(specifities, data.frame)
-  names(specifities) <- c("specificity", "clonotype")
+  if(!is.null(gliph)) {
+    specifities <- stringr::str_split(string = gliph[gliph[,1] > cluster.size, 3], pattern = " ")
+    names(specifities) <- 1:length(specifities)
+    specifities <- plyr::ldply(specifities, data.frame)
+    names(specifities) <- c("specificity", "clonotype")
+  }
 
-  # Gliph data only
-  if(is.null(clonotype.data) & is.null(cell.data)){
+  # Only GLIPH data provided
+  if(!is.null(gliph) & is.null(clonotype.data) & is.null(cell.data)){
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
 
     # Graph object
@@ -92,8 +101,8 @@ PlotTCellPack <- function(gliph,
       ggplot2::coord_fixed()
   }
 
-  # Clonotype data only
-  if(!is.null(clonotype.data) & is.null(cell.data)){
+  # Only GLIPH and clonotype data provided
+  if(!is.null(gliph) & !is.null(clonotype.data) & is.null(cell.data)){
     specifities <- merge(specifities, clonotype.data, all = FALSE)
     specifities.aggregate <- aggregate(data = specifities, frequency~specificity, sum)
     names(specifities.aggregate) <- c("name", "frequency")
@@ -113,8 +122,8 @@ PlotTCellPack <- function(gliph,
       ggplot2::coord_fixed()
   }
 
-  # Continuous cell data only
-  if(!is.null(cell.data) & class(cell.data$data) %in% c("integer", "numeric")){
+  # Only GLIPH and continuous cell data provided
+  if(!is.null(gliph) & !is.null(cell.data) & class(cell.data$data) %in% c("integer", "numeric")){
     specifities <- merge(specifities, cell.data, all = FALSE)
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
     edges <- rbind(edges, data.frame(from = specifities$clonotype, to = specifities$cell))
@@ -136,8 +145,8 @@ PlotTCellPack <- function(gliph,
       ggplot2::labs(fill = "")
   }
 
-  # Discrete cell data only
-  if(!is.null(cell.data) & class(cell.data$data) %in% c("factor", "character")){
+  # Only GLIPH and discrete cell data provided
+  if(!is.null(gliph) & !is.null(cell.data) & class(cell.data$data) %in% c("factor", "character")){
     specifities <- merge(specifities, cell.data, all = FALSE)
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
     edges <- rbind(edges, data.frame(from =  specifities$clonotype, to = specifities$cell))
@@ -158,6 +167,48 @@ PlotTCellPack <- function(gliph,
       ggplot2::coord_fixed() +
       ggplot2::labs(fill = "")
   }
+
+# Only discrete cell data provided
+ if(is.null(gliph) & !is.null(cell.data) & class(cell.data$data) %in% c("factor", "character")){
+   edges <- data.frame(from = cell.data$clonotype, to = cell.data$cell)
+   vertices <- unique(data.frame(name = cell.data$cell, data = cell.data$data))
+   vertices <- rbind(vertices, unique(data.frame(name = cell.data$clonotype, data = rep("1", nrow(cell.data)))))
+
+   # Graph object
+   graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
+
+   # Plot
+   getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, color.gradient))
+   plot <- ggraph::ggraph(graph, layout = "circlepack") +
+     ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
+     ggraph::geom_node_circle(ggplot2::aes(fill = data, filter = leaf), size = 0.25, n = 50, color = line.color) +
+     ggplot2::scale_fill_manual(values = c(clonotype.color, getPalette(length(unique(cell.data$data)))), breaks = sort(unique(cell.data$data))) +
+     ggplot2::theme_void() +
+     ggplot2::coord_fixed() +
+     ggplot2::labs(fill = "")
+ }
+
+# Only continous cell data provided
+if(is.null(gliph) & !is.null(cell.data) & class(cell.data$data) %in% c("integer", "numeric")){
+  edges <- data.frame(from = cell.data$clonotype, to = cell.data$cell)
+
+  vertices <- unique(data.frame(name = cell.data$cell, data = cell.data$data))
+  clonotype.aggregate <- aggregate(data = cell.data, data~clonotype, mean)
+  names(clonotype.aggregate) <- c("name", "data")
+  vertices <- rbind(vertices, clonotype.aggregate)
+
+  # Graph object
+  graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
+
+  # Plot
+  getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, color.gradient))
+  plot <- ggraph::ggraph(graph, layout = "circlepack") +
+    ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
+    ggplot2::scale_fill_distiller(palette = color.gradient) +
+    ggplot2::theme_void() +
+    ggplot2::coord_fixed() +
+    ggplot2::labs(fill = "")
+}
 
   if(legend == FALSE){
     plot <- plot + theme(legend.position="none")
