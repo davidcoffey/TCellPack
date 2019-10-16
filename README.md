@@ -15,7 +15,11 @@ devtools::install_github("davidcoffey/TCellPack")
 ```
 
 ### Basic usage
+<<<<<<< HEAD
 TCellPack pack comes with 4 example data frames (`gliph.example`, `clonotype.data.example`, `cell.data.continuous.example`, `cell.data.discrete.example`) that are loaded automatically. Below is the code used to create the five shown images.
+=======
+TCellPack pack comes with 4 example data frames (`gliph.example`, `clonotype.data.example`, `cell.data.continuous.example`, `cell.data.discrete.example`) that are loaded automatically. Below is the code used to create the three shown images.
+>>>>>>> fd8eb20a633eb23cc6c0a7acb3078288d1e81d50
 
 ```
 library(TCellPack)
