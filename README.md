@@ -1,4 +1,4 @@
-# TCellPack v0.2
+# TCellPack v0.3
 TCellPack is an R package used to visualize characteristics of T cell repertoires. It is possible to visualize T cell clonotype diversity and abundance in relation to its antigen specificity and phenotype in a single plot.
 
 ### About
@@ -6,7 +6,7 @@ T cell packs are circle packing plots representing T cell repertoires. They are 
 
 To plot data from GLIPH, simply provide the path to the convergence-groups.txt output table. Inner circles are represented by the T cell clonotypes and outer circles are presented by specificity groups. Additionally, if the frequency of each T cell clonotype is known (e.g. from Adaptive ImmunoSeq), that may be supplied as a 2 column data frame with column headers "clonotype" and "frequency". This will draw the clonotype circles in proportion to the frequency of the clones. If additional information is available at the level of an individual T cell (e.g. 10X Chromium single cell immune profiling), that may be supplied as a 3 column data frame with the column headers "clonotype", "cell", and "data". Data may be a discrete or continuous variable. In this case, individual T cell are represented by the smallest circles colored according to their data value.
 
-The fill and line color can be adjusted and the legend may be hidden or displayed. Additionally, labels can be displayed for each cell, clonotype or specificity group. Since TCellPack is based on the [ggraph](https://github.com/thomasp85/ggraph) package, plots can be modified further by adding additional layers.
+The fill and line color can be adjusted and the legend may be hidden or displayed. Additionally, labels can be displayed for each cell, data value, clonotype or specificity group. Since TCellPack is based on the [ggraph](https://github.com/thomasp85/ggraph) package, plots can be modified further by adding additional layers.
 
 ### Installation instructions
 ```

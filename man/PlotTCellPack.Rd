@@ -31,7 +31,7 @@ PlotTCellPack(gliph = NULL, clonotype.data = NULL, cell.data = NULL,
 
 \item{label.size}{Integer corresponding to text size of the labels.}
 
-\item{label}{Character vector indicating if labels should be displayed.  Options include "none", "specificity", "clonotype", and "cell".}
+\item{label}{Character vector indicating if labels should be displayed.  Options include "none", "specificity", "clonotype", "cell", and "data".}
 
 \item{legend}{Logic indicating if legend should be displayed (TRUE) or not (FALSE).}
 

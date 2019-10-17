@@ -12,7 +12,7 @@
 #' @param line.color Character vector providing the color (single value) of the circle borders.
 #' @param label.color Character vector providing the color (single value) of the labels.
 #' @param label.size Integer corresponding to text size of the labels.
-#' @param label Character vector indicating if labels should be displayed.  Options include "none", "specificity", "clonotype", and "cell".
+#' @param label Character vector indicating if labels should be displayed.  Options include "none", "specificity", "clonotype", "cell", and "data".
 #' @param legend Logic indicating if legend should be displayed (TRUE) or not (FALSE).
 #' @param cluster.size Minimum number of clonotypes per specificity group.
 #'
@@ -99,6 +99,10 @@ PlotTCellPack <- function(gliph = NULL,
                                  name = "", labels = c("Specificity", "Clonotype")) +
       ggplot2::theme_void() +
       ggplot2::coord_fixed()
+
+    # Define depth level for optional label
+    clonotype = 1
+    specificity = 0
   }
 
   # Only GLIPH and clonotype data provided
@@ -120,6 +124,10 @@ PlotTCellPack <- function(gliph = NULL,
                                  name = "", labels = c("Specificity", "Clonotype")) +
       ggplot2::theme_void() +
       ggplot2::coord_fixed()
+
+    # Define depth level for optional label
+    clonotype = 1
+    specificity = 0
   }
 
   # Only GLIPH and continuous cell data provided
@@ -143,6 +151,11 @@ PlotTCellPack <- function(gliph = NULL,
       ggplot2::theme_void() +
       ggplot2::coord_fixed() +
       ggplot2::labs(fill = "")
+
+    # Define depth level for optional label
+    cell = 2
+    clonotype = 1
+    specificity = 0
   }
 
   # Only GLIPH and discrete cell data provided
@@ -166,6 +179,11 @@ PlotTCellPack <- function(gliph = NULL,
       ggplot2::theme_void() +
       ggplot2::coord_fixed() +
       ggplot2::labs(fill = "")
+
+    # Define depth level for optional label
+    cell = 2
+    clonotype = 1
+    specificity = 0
   }
 
 # Only discrete cell data provided
@@ -186,6 +204,10 @@ PlotTCellPack <- function(gliph = NULL,
      ggplot2::theme_void() +
      ggplot2::coord_fixed() +
      ggplot2::labs(fill = "")
+
+   # Define depth level for optional label
+   cell = 1
+   clonotype = 0
  }
 
 # Only continous cell data provided
@@ -208,22 +230,30 @@ if(is.null(gliph) & !is.null(cell.data) & class(cell.data$data) %in% c("integer"
     ggplot2::theme_void() +
     ggplot2::coord_fixed() +
     ggplot2::labs(fill = "")
+
+  # Define depth level for optional label
+  cell = 1
+  clonotype = 0
 }
 
   if(legend == FALSE){
-    plot <- plot + theme(legend.position="none")
+    plot <- plot + ggplot2::theme(legend.position="none")
   }
 
   if(label == "cell"){
-    plot <- plot + geom_node_text(aes(label=name, filter = depth == 2), color = label.color, size = label.size)
+    plot <- plot + ggraph::geom_node_text(aes(label=name, filter = depth == cell), color = label.color, size = label.size)
+  }
+
+  if(label == "data"){
+    plot <- plot + ggraph::geom_node_text(aes(label=data, filter = depth == cell), color = label.color, size = label.size)
   }
 
   if(label == "clonotype"){
-    plot <- plot + geom_node_text(aes(label=name, filter = depth == 1), color = label.color, size = label.size)
+    plot <- plot + ggraph::geom_node_text(aes(label=name, filter = depth == clonotype), color = label.color, size = label.size)
   }
 
   if(label == "specificity"){
-    plot <- plot + geom_node_text(aes(label=name, filter = depth == 0), color = label.color, size = label.size)
+    plot <- plot + ggraph::geom_node_text(aes(label=name, filter = depth == specificity), color = label.color, size = label.size)
   }
 
   return(plot)
