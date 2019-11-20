@@ -1,9 +1,11 @@
 #' Create T cell pack
 #'
-#' Creates a T cell pack from a gliph file with the option to visualize clonotype and cellular metadata.
+#' Creates a T cell pack from a gliph file, single-cell gene expression, or a combination of gliph and single-cell gene expression or gliph and T cell receptor sequencing.
 #'
 #' @param gliph Character vector providing the path to GLIPH_TCR_Table-convergence-groups.txt.
-#' @param clonotype.data Optional 2 column data frame named "clonotype", "frequency".
+#' @param clonotype.data Optional 2 column data frame named "clonotype" and "frequency" or "clonotype" and "data".  If the second column
+#' is "frequency", then the T cell clone size is drawn proportional to its frequency.  If the second column is "data", then the T cell clone
+#' is colored according the variable (only discrete variables are supported at this time).
 #' @param cell.data Optional 3 column data frame named "clonotype", "cell", and "data".
 #' @param specificity.color Character vector providing the color (single value) of the specificity circles.
 #' @param clonotype.color Character vector providing the color (single value) of the clonotype circles.
@@ -65,7 +67,7 @@ PlotTCellPack <- function(gliph = NULL,
   }
 
   if(!is.null(clonotype.data)){
-    if(!(all(names(clonotype.data) %in% c("clonotype", "frequency")))) {warning("clonotype.data must have the columns 'clonotype' and 'frequency'", call. = TRUE)}
+    if(!(all(names(clonotype.data) %in% c("clonotype", "frequency")) | all(names(clonotype.data) %in% c("clonotype", "frequency", "data")))) {warning("clonotype.data must have the columns 'clonotype' and 'frequency' or 'clonotype' and 'data'", call. = TRUE)}
     if(any(clonotype.data$frequency %in% 0 & is.na(clonotype.data$frequency))) {warning("clonotype.data cannot contain NA or 0 values", call. = TRUE)}
   }
 
@@ -105,8 +107,8 @@ PlotTCellPack <- function(gliph = NULL,
     specificity = 0
   }
 
-  # Only GLIPH and clonotype data provided
-  if(!is.null(gliph) & !is.null(clonotype.data) & is.null(cell.data)){
+  # Only GLIPH and clonotype frequency data provided
+  if(!is.null(gliph) & !is.null(clonotype.data) & is.null(cell.data) & any(names(clonotype.data) %in% "frequency")){
     specifities <- merge(specifities, clonotype.data, all = FALSE)
     specifities.aggregate <- aggregate(data = specifities, frequency~specificity, sum)
     names(specifities.aggregate) <- c("name", "frequency")
@@ -126,6 +128,32 @@ PlotTCellPack <- function(gliph = NULL,
       ggplot2::coord_fixed()
 
     # Define depth level for optional label
+    clonotype = 1
+    specificity = 0
+  }
+
+  # Only GLIPH and discrete clonotype data provided
+  if(!is.null(gliph) & !is.null(clonotype.data) & is.null(cell.data) & any(names(clonotype.data) %in% "data")){
+    specifities <- merge(specifities, clonotype.data, all = FALSE)
+    edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
+    vertices <- data.frame(name = specifities$clonotype, data = specifities$data)
+    vertices <- rbind(vertices, unique(data.frame(name = specifities$specificity, data = rep("1", nrow(specifities)))))
+
+    # Graph object
+    graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
+
+    # Plot
+    getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, color.gradient))
+    plot <- ggraph::ggraph(graph, layout = "circlepack") +
+      ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
+      ggraph::geom_node_circle(ggplot2::aes(fill = data, filter = leaf), size = 0.25, n = 50, color = line.color) +
+      ggplot2::scale_fill_manual(values = c(specificity.color, getPalette(length(unique(specifities$data)))), breaks = sort(unique(specifities$data))) +
+      ggplot2::theme_void() +
+      ggplot2::coord_fixed() +
+      ggplot2::labs(fill = "")
+
+    # Define depth level for optional label
+    cell = NULL
     clonotype = 1
     specificity = 0
   }
@@ -245,7 +273,11 @@ if(is.null(gliph) & !is.null(cell.data) & class(cell.data$data) %in% c("integer"
   }
 
   if(label == "data"){
-    plot <- plot + ggraph::geom_node_text(aes(label=data, filter = depth == cell), color = label.color, size = label.size)
+    if(is.null(cell)){
+      plot <- plot + ggraph::geom_node_text(aes(label=data, filter = depth == clonotype), color = label.color, size = label.size)
+    } else {
+      plot <- plot + ggraph::geom_node_text(aes(label=data, filter = depth == cell), color = label.color, size = label.size)
+    }
   }
 
   if(label == "clonotype"){
