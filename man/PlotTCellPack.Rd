@@ -13,9 +13,9 @@ PlotTCellPack(gliph = NULL, clonotype.data = NULL, cell.data = NULL,
 \arguments{
 \item{gliph}{Character vector providing the path to GLIPH_TCR_Table-convergence-groups.txt.}
 
-\item{clonotype.data}{Optional 2 column data frame named "clonotype" and "frequency" or "clonotype" and "data".  If the second column
+\item{clonotype.data}{Optional 2-3 column data frame named "clonotype", "frequency" and/or "data".  If the second column
 is "frequency", then the T cell clone size is drawn proportional to its frequency.  If the second column is "data", then the T cell clone
-is colored according the variable (only discrete variables are supported at this time).}
+is colored according the variable (only discrete variables are supported).}
 
 \item{cell.data}{Optional 3 column data frame named "clonotype", "cell", and "data".}
 
