@@ -113,6 +113,7 @@ PlotTCellPack <- function(gliph = NULL,
     specifities.aggregate <- aggregate(data = specifities, frequency~specificity, sum)
     names(specifities.aggregate) <- c("name", "frequency")
     names(clonotype.data) <- c("name", "frequency")
+    clonotype.data <- clonotype.data[clonotype.data$name %in% specifities$clonotype,]
     vertices <- rbind(clonotype.data, specifities.aggregate)
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
 
