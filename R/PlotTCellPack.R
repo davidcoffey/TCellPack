@@ -5,7 +5,7 @@
 #' @param gliph Character vector providing the path to GLIPH_TCR_Table-convergence-groups.txt.
 #' @param clonotype.data Optional 2-3 column data frame named "clonotype", "frequency" and/or "data".  If the second column
 #' is "frequency", then the T cell clone size is drawn proportional to its frequency.  If the second column is "data", then the T cell clone
-#' is colored according the variable (only discrete variables are supported).
+#' is colored according the variable (discrete and continuous variables are supported).
 #' @param cell.data Optional 3 column data frame named "clonotype", "cell", and "data".
 #' @param specificity.color Character vector providing the color (single value) of the specificity circles.
 #' @param clonotype.color Character vector providing the color (single value) of the clonotype circles.
@@ -103,6 +103,7 @@ PlotTCellPack <- function(gliph = NULL,
       ggplot2::coord_fixed()
 
     # Define depth level for optional label
+    cell = NULL
     clonotype = 1
     specificity = 0
   }
@@ -129,6 +130,7 @@ PlotTCellPack <- function(gliph = NULL,
       ggplot2::coord_fixed()
 
     # Define depth level for optional label
+    cell = NULL
     clonotype = 1
     specificity = 0
   }
@@ -159,8 +161,35 @@ PlotTCellPack <- function(gliph = NULL,
     specificity = 0
   }
 
+  # Only GLIPH and continuous clonotype data provided
+  if(!is.null(gliph) & !is.null(clonotype.data) & is.null(cell.data) & any(names(clonotype.data) %in% "data") & !(any(names(clonotype.data) %in% "frequency")) & class(clonotype.data$data) %in% c("integer", "numeric")){
+    specifities <- merge(specifities, clonotype.data, all = FALSE)
+    specifities.aggregate <- aggregate(data = specifities, data~specificity, mean)
+    names(specifities.aggregate) <- c("name", "data")
+    names(clonotype.data) <- c("name", "data")
+    clonotype.data <- clonotype.data[clonotype.data$name %in% specifities$clonotype,]
+
+    edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
+    vertices <- rbind(clonotype.data, specifities.aggregate)
+
+    # Graph object
+    graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
+
+    plot <- ggraph::ggraph(graph, layout = "circlepack") +
+      ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
+      ggplot2::scale_fill_distiller(palette = color.gradient) +
+      ggplot2::theme_void() +
+      ggplot2::coord_fixed() +
+      ggplot2::labs(fill = "")
+
+    # Define depth level for optional label
+    cell = NULL
+    clonotype = 1
+    specificity = 0
+  }
+
   # GLIPH, discrete clonotype, and clonotype frequency data provided
-  if(!is.null(gliph) & !is.null(clonotype.data) & is.null(cell.data) & any(names(clonotype.data) %in% "data") & any(names(clonotype.data) %in% "frequency")){
+  if(!is.null(gliph) & !is.null(clonotype.data) & is.null(cell.data) & any(names(clonotype.data) %in% "data") & any(names(clonotype.data) %in% "frequency") & class(clonotype.data$data) %in% c("factor", "character")){
     specifities <- merge(specifities, clonotype.data, all = FALSE)
     specifities.aggregate <- aggregate(data = specifities, frequency~specificity, sum)
     names(specifities.aggregate) <- c("name", "frequency")
@@ -179,6 +208,36 @@ PlotTCellPack <- function(gliph = NULL,
       ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
       ggraph::geom_node_circle(ggplot2::aes(fill = data, filter = leaf), size = 0.25, n = 50, color = line.color) +
       ggplot2::scale_fill_manual(values = c(specificity.color, getPalette(length(unique(specifities$data)))), breaks = sort(unique(specifities$data))) +
+      ggplot2::theme_void() +
+      ggplot2::coord_fixed() +
+      ggplot2::labs(fill = "")
+
+    # Define depth level for optional label
+    cell = NULL
+    clonotype = 1
+    specificity = 0
+  }
+
+  # GLIPH, continuous clonotype, and clonotype frequency data provided
+  if(!is.null(gliph) & !is.null(clonotype.data) & is.null(cell.data) & any(names(clonotype.data) %in% "data") & any(names(clonotype.data) %in% "frequency") & class(clonotype.data$data) %in% c("integer", "numeric")){
+    specifities <- merge(specifities, clonotype.data, all = FALSE)
+    specifities.aggregate <- aggregate(data = specifities, frequency~specificity, sum)
+    names(specifities.aggregate) <- c("name", "frequency")
+    data.aggregate <- aggregate(data = specifities, data~specificity, mean)
+    names(data.aggregate) <- c("name", "data")
+    specifities.aggregate = merge(specifities.aggregate, data.aggregate)
+    names(clonotype.data) <- c("name", "frequency", "data")
+    clonotype.data <- clonotype.data[clonotype.data$name %in% specifities$clonotype,]
+
+    edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
+    vertices <- rbind(clonotype.data, specifities.aggregate)
+
+    # Graph object
+    graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
+
+    plot <- ggraph::ggraph(graph, layout = "circlepack", weight = frequency) +
+      ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
+      ggplot2::scale_fill_distiller(palette = color.gradient) +
       ggplot2::theme_void() +
       ggplot2::coord_fixed() +
       ggplot2::labs(fill = "")
