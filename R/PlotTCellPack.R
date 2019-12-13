@@ -116,6 +116,7 @@ PlotTCellPack <- function(gliph = NULL,
     names(clonotype.data) <- c("name", "frequency")
     clonotype.data <- clonotype.data[clonotype.data$name %in% specifities$clonotype,]
     vertices <- rbind(clonotype.data, specifities.aggregate)
+    vertices <- vertices[order(vertices$frequency, decreasing = TRUE),]
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
 
     # Graph object
@@ -199,6 +200,7 @@ PlotTCellPack <- function(gliph = NULL,
 
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
     vertices <- rbind(clonotype.data, specifities.aggregate)
+    vertices <- vertices[order(vertices$frequency, decreasing = TRUE),]
 
     # Graph object
     graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
@@ -231,6 +233,7 @@ PlotTCellPack <- function(gliph = NULL,
 
     edges <- data.frame(from = specifities$specificity, to = specifities$clonotype)
     vertices <- rbind(clonotype.data, specifities.aggregate)
+    vertices <- vertices[order(vertices$frequency, decreasing = TRUE),]
 
     # Graph object
     graph <- igraph::graph_from_data_frame(d = edges, vertices = vertices)
