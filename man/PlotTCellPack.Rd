@@ -4,11 +4,21 @@
 \alias{PlotTCellPack}
 \title{Create T cell pack}
 \usage{
-PlotTCellPack(gliph = NULL, clonotype.data = NULL, cell.data = NULL,
-  specificity.color = "#08306b", clonotype.color = "#4292c6",
-  cell.color = "#9ecae1", color.gradient = "RdYlBu",
-  line.color = "black", label.color = "black", label.size = 1,
-  label = "none", legend = FALSE, cluster.size = 1)
+PlotTCellPack(
+  gliph = NULL,
+  clonotype.data = NULL,
+  cell.data = NULL,
+  specificity.color = "#08306b",
+  clonotype.color = "#4292c6",
+  cell.color = "#9ecae1",
+  color.gradient = "RdYlBu",
+  line.color = "black",
+  label.color = "black",
+  label.size = 1,
+  label = "none",
+  legend = FALSE,
+  cluster.size = 1
+)
 }
 \arguments{
 \item{gliph}{Character vector providing the path to GLIPH_TCR_Table-convergence-groups.txt.}

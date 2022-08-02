@@ -296,7 +296,8 @@ PlotTCellPack <- function(gliph = NULL,
     plot <- ggraph::ggraph(graph, layout = "circlepack") +
       ggraph::geom_node_circle(ggplot2::aes(fill = data), size = 0.25, n = 50, color = line.color) +
       ggraph::geom_node_circle(ggplot2::aes(fill = data, filter = leaf), size = 0.25, n = 50, color = line.color) +
-      ggplot2::scale_fill_manual(values = c(specificity.color, clonotype.color, getPalette(length(unique(specifities$data)))), breaks = sort(unique(specifities$data))) +
+      ggplot2::scale_fill_manual(values = c(specificity.color, clonotype.color, getPalette(length(unique(specifities$data)))), breaks = c(1, 2, sort(unique(specifities$data))),
+                                 labels =  c("Specifity", "Clonotype", sort(unique(specifities$data)))) +
       ggplot2::theme_void() +
       ggplot2::coord_fixed() +
       ggplot2::labs(fill = "")
