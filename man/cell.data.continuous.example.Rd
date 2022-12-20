@@ -4,7 +4,9 @@
 \name{cell.data.continuous.example}
 \alias{cell.data.continuous.example}
 \title{Example continuous cell data}
-\format{A dataframe}
+\format{
+A dataframe
+}
 \usage{
 cell.data.continuous.example
 }

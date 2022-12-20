@@ -4,7 +4,9 @@
 \name{clonotype.data.example}
 \alias{clonotype.data.example}
 \title{Example clonotype data}
-\format{A dataframe}
+\format{
+A dataframe
+}
 \usage{
 clonotype.data.example
 }

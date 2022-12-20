@@ -4,7 +4,9 @@
 \name{cell.data.discrete.example}
 \alias{cell.data.discrete.example}
 \title{Example discrete cell data}
-\format{A dataframe}
+\format{
+A dataframe
+}
 \usage{
 cell.data.discrete.example
 }

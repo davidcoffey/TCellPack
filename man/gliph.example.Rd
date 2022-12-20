@@ -4,7 +4,9 @@
 \name{gliph.example}
 \alias{gliph.example}
 \title{Example gliph data}
-\format{A dataframe}
+\format{
+A dataframe
+}
 \usage{
 gliph.example
 }

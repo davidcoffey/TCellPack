@@ -2,7 +2,7 @@
 #'
 #' Creates a T cell pack from a gliph file, single-cell gene expression, or a combination of gliph and single-cell gene expression or gliph and T cell receptor sequencing.
 #'
-#' @param gliph Character vector providing the path to GLIPH_TCR_Table-convergence-groups.txt.
+#' @param gliph Character vector providing the file path to convergence-groups.txt (GLIPH version 1) or cluster.txt (GLIPH version 2).The correct version will be detected automatically. Since GLIPH version 2 allows a single clonotype to be assigned to multiple specificity groups, which is incompatible with this visualization technique, TCellPack will visualize the clonotype belonging to the largest specificity group. For example, if CASSVALLGGTQYF is assigned to two specificity groups and each group has 5 and 10 other assigned clonotypes, then the visualized clonotype will be assigned to the specificity group with 10 members.
 #' @param clonotype.data Optional 2-3 column data frame named "clonotype", "frequency" and/or "data".  If the second column
 #' is "frequency", then the T cell clone size is drawn proportional to its frequency.  If the second column is "data", then the T cell clone
 #' is colored according the variable (discrete and continuous variables are supported).
@@ -45,6 +45,7 @@
 #' @importFrom stringr str_split
 #' @importFrom data.table fread
 #' @importFrom grDevices colorRampPalette
+#' @importFrom tidyr unite
 
 PlotTCellPack <- function(gliph = NULL,
                           clonotype.data = NULL,
@@ -72,7 +73,7 @@ PlotTCellPack <- function(gliph = NULL,
   }
 
   if(!is.null(gliph) & any(class(gliph) %in% "character")){
-    gliph <- data.frame(data.table::fread(gliph))
+    gliph <- data.frame(data.table::fread(gliph, fill = TRUE))
   }
 
   if(!is.null(gliph) & any(class(gliph) %in% "data.table")){
@@ -81,10 +82,22 @@ PlotTCellPack <- function(gliph = NULL,
 
   # Reformat GLIPH data
   if(!is.null(gliph)) {
-    specifities <- stringr::str_split(string = gliph[gliph[,1] > cluster.size, 3], pattern = " ")
-    names(specifities) <- 1:length(specifities)
-    specifities <- plyr::ldply(specifities, data.frame)
-    names(specifities) <- c("specificity", "clonotype")
+    if(ncol(gliph) == 3) { # GLIPH version 1
+      specifities <- stringr::str_split(string = gliph[gliph[,1] > cluster.size, 3], pattern = " ")
+      names(specifities) <- 1:length(specifities)
+      specifities <- plyr::ldply(specifities, data.frame)
+      names(specifities) <- c("specificity", "clonotype")
+    } else { # GLIPH version 2
+      gliph <- tidyr::unite(gliph, "merged", 5:ncol(gliph), remove = FALSE, sep = " ")
+      specifities <- stringr::str_split(string = gliph[gliph[,3] > cluster.size, "merged"], pattern = " ")
+      names(specifities) <- 1:length(specifities)
+      specifities <- plyr::ldply(specifities, data.frame)
+      names(specifities) <- c("specificity", "clonotype")
+      specifities = specifities[specifities$clonotype != "", ]
+      specifities = merge(specifities, as.data.frame(table(clonotype = specifities$clonotype)))
+      specifities = as.data.frame(dplyr::slice_min(dplyr::group_by(specifities, clonotype), n = 1, order_by = specificity, with_ties = FALSE))
+      specifities$Freq = NULL
+    }
   }
 
   # Only GLIPH data provided

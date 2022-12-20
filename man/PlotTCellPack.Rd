@@ -21,7 +21,7 @@ PlotTCellPack(
 )
 }
 \arguments{
-\item{gliph}{Character vector providing the path to GLIPH_TCR_Table-convergence-groups.txt.}
+\item{gliph}{Character vector providing the file path to convergence-groups.txt (GLIPH version 1) or cluster.txt (GLIPH version 2).The correct version will be detected automatically. Since GLIPH version 2 allows a single clonotype to be assigned to multiple specificity groups, which is incompatible with this visualization technique, TCellPack will visualize the clonotype belonging to the largest specificity group. For example, if CASSVALLGGTQYF is assigned to two specificity groups and each group has 5 and 10 other assigned clonotypes, then the visualized clonotype will be assigned to the specificity group with 10 members.}
 
 \item{clonotype.data}{Optional 2-3 column data frame named "clonotype", "frequency" and/or "data".  If the second column
 is "frequency", then the T cell clone size is drawn proportional to its frequency.  If the second column is "data", then the T cell clone
