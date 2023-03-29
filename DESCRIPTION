@@ -1,7 +1,7 @@
 Package: TCellPack
 Type: Package
 Title: T cell circle packing plots
-Version: 2.0
+Version: 2.1
 Author: David Coffey, M.D.
 Maintainer: David Coffey <davidcoffey@miami.edu>
 Description: TCellPack is a package used to visualize characteristics of T cell repertoires.  It is possible to visualize T cell clonotype diversity and abundance in relation to its antigen specificity and phenotype in a single plot.

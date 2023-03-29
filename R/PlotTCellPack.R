@@ -73,7 +73,8 @@ PlotTCellPack <- function(gliph = NULL,
   }
 
   if(!is.null(gliph) & any(class(gliph) %in% "character")){
-    gliph <- data.frame(data.table::fread(gliph, fill = TRUE))
+    max.col <- max(sapply(strsplit(scan(gliph, what = "", sep = "\n"), "[ \t]+"), length))
+    gliph <- read.table(gliph, fill = TRUE, col.names = paste("V", 1:max.col, sep = ""))
   }
 
   if(!is.null(gliph) & any(class(gliph) %in% "data.table")){
